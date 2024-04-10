@@ -9,16 +9,18 @@ from ..database import engine
 router = APIRouter(prefix="/product", tags=["Complete Product Info"])
 
 
-@router.post("/", status_code=status.HTTP_200_OK, response_model=schemas.ProductRead)
+@router.post(
+    "/",
+    status_code=status.HTTP_200_OK,
+    response_model=schemas.ProductRead,
+    responses={
+        status.HTTP_404_NOT_FOUND: {"model": schemas.HTTPError},
+    },
+)
 def get_product_by_url(
     url: schemas.ProductUrl,
     current_user: models.User = Depends(oauth2.get_current_user),
 ):
-    if not current_user:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Not authorized to perform the following action",
-        )
     product_asin = product_exists(url.url)
     if not product_asin:
         raise HTTPException(
@@ -87,16 +89,16 @@ def get_product_by_url(
 
 
 @router.get(
-    "/{asin}", status_code=status.HTTP_200_OK, response_model=schemas.ProductRead
+    "/{asin}",
+    status_code=status.HTTP_200_OK,
+    response_model=schemas.ProductRead,
+    responses={
+        status.HTTP_404_NOT_FOUND: {"model": schemas.HTTPError},
+    },
 )
 def get_product_by_asin(
     asin: str, current_user: models.User = Depends(oauth2.get_current_user)
 ):
-    if not current_user:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Not authorized to perform the following action",
-        )
     with Session(engine) as session:
         # Check if the current user already has this product
         existing_user_product = session.exec(
@@ -161,18 +163,20 @@ def get_product_by_asin(
     return product
 
 
-@router.get("/", response_model=List[schemas.ProductOut])
+@router.get(
+    "/",
+    status_code=status.HTTP_200_OK,
+    response_model=List[schemas.ProductOut],
+    responses={
+        status.HTTP_404_NOT_FOUND: {"model": schemas.HTTPError},
+    },
+)
 def get_products_by_user(
     current_user: models.User = Depends(oauth2.get_current_user),
     limit: int = 10,
     skip: int = 0,
     search: str | None = "",
 ):
-    if not current_user:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Not authorized to perform the following action",
-        )
     with Session(engine) as session:
         search_keyword = f"%{search}%"
         query = (

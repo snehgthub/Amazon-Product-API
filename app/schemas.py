@@ -95,3 +95,7 @@ class Token(SQLModel):
 
 class TokenData(SQLModel):
     id: str | None = None
+
+
+class HTTPError(SQLModel):
+    detail: str

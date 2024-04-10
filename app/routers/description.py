@@ -12,16 +12,14 @@ router = APIRouter(prefix="/product", tags=["Product Description"])
     "/description",
     status_code=status.HTTP_200_OK,
     response_model=schemas.ProductDescription,
+    responses={
+        status.HTTP_404_NOT_FOUND: {"model": schemas.HTTPError},
+    },
 )
 def get_description_from_url(
     url: schemas.ProductUrl,
     current_user: models.User = Depends(oauth2.get_current_user),
 ):
-    if not current_user:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Not authorized to perform the following action",
-        )
     product_asin = product_exists(url.url)
     if not product_asin:
         raise HTTPException(
@@ -90,15 +88,13 @@ def get_description_from_url(
     "/{asin}/description",
     status_code=status.HTTP_200_OK,
     response_model=schemas.ProductDescription,
+    responses={
+        status.HTTP_404_NOT_FOUND: {"model": schemas.HTTPError},
+    },
 )
 def get_description_by_asin(
     asin: str, current_user: models.User = Depends(oauth2.get_current_user)
 ):
-    if not current_user:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Not authorized to perform the following action",
-        )
     with Session(engine) as session:
         # Check if the current user already has this product
         existing_user_product = session.exec(

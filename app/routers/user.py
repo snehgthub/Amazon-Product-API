@@ -7,7 +7,13 @@ from .. import schemas, models, utils
 router = APIRouter(prefix="/users", tags=["Users"])
 
 
-@router.get("/", response_model=List[schemas.UserRead])
+@router.get(
+    "/",
+    response_model=List[schemas.UserRead],
+    responses={
+        status.HTTP_404_NOT_FOUND: {"model": schemas.HTTPError},
+    },
+)
 def get_users():
     with Session(engine) as session:
         users = session.exec(select(models.User)).all()
@@ -18,7 +24,14 @@ def get_users():
         return users
 
 
-@router.post("/", status_code=status.HTTP_201_CREATED, response_model=schemas.UserRead)
+@router.post(
+    "/",
+    status_code=status.HTTP_201_CREATED,
+    response_model=schemas.UserRead,
+    responses={
+        status.HTTP_400_BAD_REQUEST: {"model": schemas.HTTPError},
+    },
+)
 def create_user(user: schemas.UserCreate):
     with Session(engine) as session:
         existing_user = session.exec(
@@ -38,7 +51,13 @@ def create_user(user: schemas.UserCreate):
     return db_user
 
 
-@router.get("/{id}", response_model=schemas.UserRead)
+@router.get(
+    "/{id}",
+    response_model=schemas.UserRead,
+    responses={
+        status.HTTP_404_NOT_FOUND: {"model": schemas.HTTPError},
+    },
+)
 def get_user(id: int):
     with Session(engine) as session:
         user = session.get(models.User, id)
@@ -50,7 +69,13 @@ def get_user(id: int):
         return user
 
 
-@router.patch("/{id}", response_model=schemas.UserRead)
+@router.patch(
+    "/{id}",
+    response_model=schemas.UserRead,
+    responses={
+        status.HTTP_404_NOT_FOUND: {"model": schemas.HTTPError},
+    },
+)
 def update_user(id: int, user: schemas.UserUpdate):
     with Session(engine) as session:
         db_user = session.get(models.User, id)

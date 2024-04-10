@@ -7,7 +7,13 @@ from ..database import engine
 router = APIRouter(tags=["Authentication"])
 
 
-@router.post("/login", response_model=schemas.Token)
+@router.post(
+    "/login",
+    response_model=schemas.Token,
+    responses={
+        status.HTTP_403_FORBIDDEN: {"model": schemas.HTTPError},
+    },
+)
 def login(user_credentials: OAuth2PasswordRequestForm = Depends()):
     with Session(engine) as session:
         user = session.exec(

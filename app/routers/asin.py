@@ -9,17 +9,17 @@ router = APIRouter(prefix="/product", tags=["Product ASIN"])
 
 
 @router.post(
-    "/asin", status_code=status.HTTP_200_OK, response_model=schemas.ProductASIN
+    "/asin",
+    status_code=status.HTTP_200_OK,
+    response_model=schemas.ProductASIN,
+    responses={
+        status.HTTP_404_NOT_FOUND: {"model": schemas.HTTPError},
+    },
 )
 def get_asin_from_url(
     url: schemas.ProductUrl,
     current_user: models.User = Depends(oauth2.get_current_user),
 ):
-    if not current_user:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Not authorized to perform the following action",
-        )
     product_asin = get_asin(url.url)
     if not product_asin:
         raise HTTPException(
