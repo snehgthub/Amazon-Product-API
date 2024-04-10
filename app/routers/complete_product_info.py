@@ -68,6 +68,11 @@ def get_product_by_url(
 
     # Handle product with input ASIN not in database
     product_data = get_product_data(url.url)
+    if not product_data:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="No product found with the given URL",
+        )
     product = models.Product(
         asin=product_data["asin"],
         title=product_data["title"],
@@ -196,5 +201,4 @@ def get_products_by_user(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail=f"No searched products found for logged in user: {current_user.email}",
             )
-        print(len(products_of_user))
         return products_of_user

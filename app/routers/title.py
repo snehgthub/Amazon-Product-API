@@ -64,6 +64,11 @@ def get_title_from_url(
             return new_product_entry
 
     product_data = get_product_data(url.url)
+    if not product_data:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="No product found with the given URL",
+        )
     product = models.Product(
         asin=product_data["asin"],
         title=product_data["title"],

@@ -8,13 +8,13 @@ scraper_url = "https://api.scraperapi.com"
 
 
 def get_product_data(url: str):
-    # domain = get_domain(url)
-    # if not domain:
-    #     return None
     asin = get_asin(url)
 
     payload = {"api_key": f"{settings.api_key.get_secret_value()}", "url": f"{url}"}
     response = requests.get(scraper_url, params=payload)
+
+    if response.status_code == 404:
+        return None
 
     soup = BeautifulSoup(response.content, "html.parser")
 
