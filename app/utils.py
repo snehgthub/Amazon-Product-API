@@ -76,11 +76,10 @@ def get_shortened_url(url: str):
     if "amzn" in url:
         return url
     else:
-        match = re.search(r"/dp/([A-Z0-9]{10})", url)
+        match = re.search(r"/(dp|gp/aw/d)/([A-Z0-9]{10})", url)
         if match:
-            desired_url = url[: match.end()] + "/"
-
-        return desired_url
+            desired_url = f"https://www.amazon.com/{match.group(1)}/{match.group(2)}/"
+            return desired_url
 
 
 def clone_product_for_user(product_db, new_user_id):
